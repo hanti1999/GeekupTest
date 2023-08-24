@@ -1,0 +1,11 @@
+.undone-icon {
+    color: orange;
+    display: inline-flex;
+    margin-right: 4px;
+}
+
+.completed-icon {
+    color: green;
+    display: inline-flex;
+    margin-right: 4px;
+}
