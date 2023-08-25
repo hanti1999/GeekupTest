@@ -1,11 +1,15 @@
 .undone-icon {
-    color: orange;
-    display: inline-flex;
-    margin-right: 4px;
+    @apply text-orange-500 inline-flex mr-1
 }
 
 .completed-icon {
-    color: green;
-    display: inline-flex;
-    margin-right: 4px;
+    @apply text-green-500 inline-flex mr-1
+}
+
+.markDoneBtn {
+    @apply float-right
+}
+
+.tasksList {
+    @apply h-[500px] overflow-auto
 }
