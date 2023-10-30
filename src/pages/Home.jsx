@@ -3,23 +3,6 @@ import { Divider, Select, List, Button } from 'antd';
 import { MinusSquareOutlined, CheckCircleOutlined } from '@ant-design/icons/';
 import './home.css';
 
-const onMakeDone = async (task) => {
-  const resp = await fetch(
-    `https://jsonplaceholder.typicode.com/todos/${task.id}`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify({
-        completed: true,
-      }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-    }
-  );
-
-  return resp.json();
-};
-
 const Task = ({ task, onClick }) => {
   const [loading, setLoading] = useState(false);
 
@@ -44,7 +27,7 @@ const Task = ({ task, onClick }) => {
       ) : (
         <Button
           size='small'
-          className='markDoneBtn'
+          className='float-right'
           loading={loading}
           onClick={handleClick}
         >
@@ -58,13 +41,13 @@ const Task = ({ task, onClick }) => {
 const Home = () => {
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [taskId, setTaskId] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   //User
   useEffect(() => {
     const getUsers = async () => {
-      const resp = await fetch('https://jsonplaceholder.typicode.com/users');
-      const json = await resp.json();
+      const res = await fetch('https://jsonplaceholder.typicode.com/users');
+      const json = await res.json();
       setUsers(
         json.map((user) => ({
           label: user.name,
@@ -72,20 +55,19 @@ const Home = () => {
         }))
       );
     };
-
     getUsers();
   }, []);
 
   //Tasks
   useEffect(() => {
     const getTasks = async () => {
-      const resp = await fetch(
-        `https://jsonplaceholder.typicode.com/users/${taskId}/todos`
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/users/${userId}/todos`
       );
-      const json = await resp.json();
+      const json = await res.json();
       setTasks(
         json.map((task) => ({
-          userId: taskId,
+          userId: userId,
           id: task.id,
           title: task.title,
           completed: task.completed,
@@ -93,23 +75,32 @@ const Home = () => {
       );
     };
     getTasks();
-  }, [taskId]);
+  }, [userId]);
 
   const onChange = (value) => {
-    setTaskId(value);
+    setUserId(value);
   };
 
   const completedTasks = tasks.filter((task) => task.completed === true).length;
 
   const makeDone = async (index, task) => {
-    const resp = await onMakeDone(task);
+    const res = await fetch(
+      `https://jsonplaceholder.typicode.com/todos/${task.id}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          completed: true,
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }
+    );
 
-    if (!resp) return;
+    const data = await res.json();
+    console.log(data);
 
-    setTasks((prevState) => [
-      ...prevState,
-      (prevState[index].completed = resp.completed),
-    ]);
+    setTasks((prev) => [(prev[index] = data), ...prev]);
   };
 
   const filteredTasks = tasks.sort((a, b) => a.completed - b.completed);
@@ -143,7 +134,7 @@ const Home = () => {
 
         <List
           size='large'
-          className='tasksList'
+          className='h-[500px] overflow-auto'
           bordered
           dataSource={filteredTasks}
           renderItem={(task, index) => {
