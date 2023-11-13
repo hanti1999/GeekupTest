@@ -40,7 +40,7 @@ const Task = ({ task, onClick }) => {
 
 const Home = () => {
   const [users, setUsers] = useState([]);
-  const [tasks, setTasks] = useState([]);
+  let [tasks, setTasks] = useState([]);
   const [userId, setUserId] = useState(null);
 
   //User
@@ -77,10 +77,6 @@ const Home = () => {
     getTasks();
   }, [userId]);
 
-  const onChange = (value) => {
-    setUserId(value);
-  };
-
   const completedTasks = tasks.filter((task) => task.completed === true).length;
 
   const makeDone = async (index, task) => {
@@ -92,18 +88,19 @@ const Home = () => {
           completed: true,
         }),
         headers: {
-          'Content-type': 'application/json; charset=UTF-8',
+          'Content-type': 'application/json',
         },
       }
     );
 
     const data = await res.json();
-    console.log(data);
 
-    setTasks((prev) => [(prev[index] = data), ...prev]);
+    // setTasks((prev) => [...prev, (prev[index] = data)]);
+    setTasks([...tasks, (tasks[index] = data)]);
+    // setTasks([...tasks, (tasks[index].completed = true)]);
   };
 
-  const filteredTasks = tasks.sort((a, b) => a.completed - b.completed);
+  tasks.sort((a, b) => a.completed - b.completed);
 
   return (
     <div className='container'>
@@ -115,7 +112,7 @@ const Home = () => {
         <Select
           showSearch
           optionFilterProp='children'
-          onChange={onChange}
+          onChange={(e) => setUserId(e)}
           style={{
             width: 200,
           }}
@@ -136,7 +133,7 @@ const Home = () => {
           size='large'
           className='h-[500px] overflow-auto'
           bordered
-          dataSource={filteredTasks}
+          dataSource={tasks}
           renderItem={(task, index) => {
             return (
               <List.Item>
