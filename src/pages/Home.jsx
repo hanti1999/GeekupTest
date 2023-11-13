@@ -79,7 +79,7 @@ const Home = () => {
 
   const completedTasks = tasks.filter((task) => task.completed === true).length;
 
-  const makeDone = async (index, task) => {
+  const makeDone = async (task) => {
     const res = await fetch(
       `https://jsonplaceholder.typicode.com/todos/${task.id}`,
       {
@@ -93,11 +93,15 @@ const Home = () => {
       }
     );
 
-    const data = await res.json();
-
-    // setTasks((prev) => [...prev, (prev[index] = data)]);
-    setTasks([...tasks, (tasks[index] = data)]);
-    // setTasks([...tasks, (tasks[index].completed = true)]);
+    setTasks(
+      tasks.map((item) => {
+        if (item.id === task.id) {
+          return { ...item, completed: true };
+        } else {
+          return item;
+        }
+      })
+    );
   };
 
   tasks.sort((a, b) => a.completed - b.completed);
@@ -134,13 +138,10 @@ const Home = () => {
           className='h-[500px] overflow-auto'
           bordered
           dataSource={tasks}
-          renderItem={(task, index) => {
+          renderItem={(task) => {
             return (
               <List.Item>
-                <Task
-                  task={task}
-                  onClick={async () => await makeDone(index, task)}
-                />
+                <Task task={task} onClick={async () => await makeDone(task)} />
               </List.Item>
             );
           }}
